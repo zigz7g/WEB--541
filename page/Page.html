@@ -3,19 +3,102 @@
     <head>
         <meta charset="UTF-8">
         <title>Сайт-визитка</title>
+        <style>
+            .container {
+                display: flex;
+            }
+            .section-third {
+                display: flex;
+                width: calc(100%/3);
+                height: 243px;
+            }
+            .section-third-mid {
+                display: flex;
+                flex-direction: column;
+                width: calc(100%/3);
+                height: 243px;
+            }
+            .section-third-img-left {
+                display: flex;
+                width: 253px;
+                height: 121px;
+                float: left;
+            }
+            .section-third-img-right {
+                display: flex;
+                width: 253px;
+                height: 121px;
+                float: right;
+            }
+            .section-second-img {
+                display: flex;
+                width: 300px;
+                height: 162px;
+            }
+            .section-table-info {
+                width: 1225px;
+                height: 162px;
+            }
+        </style>
     </head>
     <body>
-        <h1>Информация о сайте-визитке</h1>
-        <p>Разместить на сайте-визитке, созданном в Задании 2.1, элемент «CheckBox». 
-            При выставлении флага (логического признака) полностью клонировать только 
-            текстовое содержимое всех элементов сайта-визитки в разделительный блок :(<'div'>)*, размещённый в конце web-страницы. 
-            При сбросе флага в элементе «CheckBox» – убирать всё текстовое наполнение, попавшее в разделительный блок.
-            *Пустой блок необходимо добавить в имеющуюся структуру сайта-визитки.
-        </p>
-        <input type="checkbox" id="cloneCheckbox" checked>Копировать текст
-        <br>
-        <br>
-        <div id="separator"></div>
-        <script src="../script/CheckboxCopy.js"></script>
+        <h3>Оглавление</h3>
+        <article>Описание</article>
+        <h4>Оглавление</h4>
+        <div class="container">
+            <div class="section-third">
+                <div class="section-third-img-left">
+                    <img src="picture/hobby_picture.jpg">
+                </div>
+                <div>
+                    <ul>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="section-third-mid">
+                <div>
+                    <input type="button" value="simply button">
+                </div>
+                <div>
+                    <ul>
+                        <li></li>
+                    </ul>
+                </div>
+                <div>
+                    <input type="button" value="simply button">
+                </div>
+            </div>
+            <div class="section-third">
+                <div class="section-third-img-right">
+                    <img src="picture/contact_picture.jpg">
+                </div>
+                <div>
+                    <ul>
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <h6>Оглавление</h6>
+        <div class="container">
+            <div class="section-table-info">
+                <ul>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </div>
+            <div class="section-second-img">
+                <img src="picture/my_picture.jpg">
+            </div>
+        </div>
+        <div>
+            <footer></footer>
+        </div>
     </body>
 </html>
