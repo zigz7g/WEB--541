@@ -1,0 +1,52 @@
+<html>
+    <head></head>
+    <body>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+        <div id="app" @keydown="handlekeyPress" tabindex="0">
+            <input @focus="setFocus" type="text">
+        </div>
+
+        <script>
+            const { createApp } = Vue;
+            createApp({
+                data() {
+                    return {
+                        inputText: '',
+                        isPromtActive: false,
+                    };
+                },
+                methods: {
+                    handleKeyPress(event) {
+                        if (event.ctrlKey && event.key === 'p') {
+                            event.preventDefault();
+                            this.showPromt();
+                        }
+                    },
+                    showPromt() {
+                        if (!this.isPromtActive) {
+                            this.isPromtActive = true;
+                            this.promtUser();
+                        }
+                    },
+                    promtUser() {
+                        const userInput = prompt('Вывести диалоговое окно печати?');
+                        if (userInput === 'да') {
+                            this.isPromtActive = false;
+                        } else if (userInput === 'нет') {
+                            this.isPromtActive = false;
+                        } else {
+                            this.promtuser();
+                        }
+                    },
+                    setFocus() {
+                        this.isPromtActive = false;
+                    }
+                },
+                mounted() {
+                    this.$el.focus();
+                }
+            }).mount('#app');
+        </script>
+    </body>
+</html>

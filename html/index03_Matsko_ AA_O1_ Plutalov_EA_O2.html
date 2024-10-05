@@ -1,0 +1,59 @@
+<html>
+    <head></head>
+    <body>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        
+        <div id="app">
+            <select v-model="selectedOption" multiple>
+                <option>"1"</option>
+                <option>"2"</option>
+                <option>"3"</option>
+                <option>"4"</option>
+                <option>"5"</option>
+                <option>"6"</option>
+                <option>"7"</option>
+            </select>
+        </div>
+        <div>
+            <input type="text" v-model="inputs[0]">
+            <input type="text" v-model="inputs[1]">
+            <input type="text" v-model="inputs[2]">
+            <input type="text" v-model="inputs[3]">
+            <input type="text" v-model="inputs[4]">
+            <input type="text" v-model="inputs[5]">
+            <input type="text" v-model="inputs[6]">
+        </div>
+
+        <script>
+            const { createApp } = Vue;
+            createApp({
+                data() {
+                    return {
+                        option: ['1', '2', '3', '4', '5', '6', '7'],
+                        selectedOption: [],
+                        inputs: ['', '', '', '', '', '', ''] 
+                    };
+                },
+                watch: {
+                    selectedOption(newVal) {
+                        this.updateInputs(newVal);
+                    }
+                },
+                method: {
+                    updateInputs(selected) {
+                        this.inputs.fill('');
+                        selected.forEach((value, index) => {
+                            if (index < this.inputs.length) {
+                                this.inputs[index] = value;
+                            }
+                        });
+                    },
+                    resetSelection() {
+                        this.selectedOption = [];
+                        this.updateInputs([]);
+                    }
+                }
+            }).mount('#app');
+        </script>
+    </body>
+</html>
