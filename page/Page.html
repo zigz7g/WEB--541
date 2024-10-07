@@ -87,28 +87,31 @@
 <body>
     <div class="container">
 
-        <!-- Medium Header Section -->
+        <div class="row">
+            <div class="cell">
+                <label for="cloneCheckbox">Клонировать текстовое содержимое</label>
+                <input type="checkbox" id="cloneCheckbox" onclick="toggleClone()">
+            </div>
+        </div>
+
         <div class="row">
             <div class="cell header-medium">
                 Область заголовка средней величины (Header)
             </div>
         </div>
 
-        <!-- Description Section -->
         <div class="row">
             <div class="cell">
                 Область предоставления описания (Description)
             </div>
         </div>
 
-        <!-- Below-Medium Header Section -->
         <div class="row">
             <div class="cell header-small">
                 Область заголовка величины на позицию ниже средней (Header)
             </div>
         </div>
 
-        <!-- Images, Buttons, and Lists Row -->
         <div class="row">
             <div class="cell">
                 <h5>Область изображения тематики хобби (Image)</h5>
@@ -139,14 +142,12 @@
             </div>
         </div>
 
-        <!-- Lower Header Section -->
         <div class="row">
             <div class="cell header-small">
                 Область заголовка величины на две позиции ниже средней (Header)
             </div>
         </div>
 
-        <!-- Personal Info and Image Row -->
         <div class="row">
             <div class="cell">
                 <h5>Область предоставления списка персональных данных (D.O.B, личная информация и т.д.)</h5>
@@ -161,7 +162,13 @@
             </div>
         </div>
 
-        <!-- Footer Section -->
+        <div id="cloneDiv" class="row" style="display:none; border-top: 2px solid #333; margin-top: 20px;"></div>
+            <div class="cell">
+                <h5>Скопированные данные:</h5>
+                <div id="clonedContent"></div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="cell">
                 <footer>
@@ -169,6 +176,8 @@
                 </footer>
             </div>
         </div>
+
+        <script src="../script/CheckboxCopy.js"></script>
     </div>
 </body>
 </html>

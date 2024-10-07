@@ -1,26 +1,19 @@
-//Возвращает соответствующее значение input
-let checkbox = document.querySelector('#cloneCheckbox');
-//Возвращает соответствующее значение div
-let separator = document.querySelector('#separator');
+function toggleClone() {
+    const checkbox = document.getElementById('cloneCheckbox');
+    const cloneDiv = document.getElementById('cloneDiv');
+    const clonedContent = document.getElementById('clonedContent');
 
-//Обработчик событий
-//Копирует текст, когда checkbox активен
-//Убирает текст, когда checkbox не активен
-checkbox.addEventListener('change', function() {
-    //Проверяет установлен ли флаг или нет
-    if (this.checked) {
-        //Переменная, которая хранит текст
-        let textConten = '';
-        //Парсим тег body на наличие текста в дочерних тегах
-        document.querySelectorAll('body *:not(#cloneCheckbox, #separator)').forEach(function(element) {
-            //Проверяет содержет ли тег текст или нет
-            if (element.childNodes.length > 0) {
-                textConten = element.innerText + ' ';
-            }
+    if (checkbox.checked) {
+        // Клонирование текста всех текстовых элементов
+        const textElements = document.querySelectorAll('.container .cell');
+        clonedContent.innerHTML = '';
+        textElements.forEach(function(elem) {
+            clonedContent.innerHTML += elem.innerText + '<br>';
         });
-        //Вставляем найденый текст в тег div
-        separator.innerText += textConten.trim();
+        cloneDiv.style.display = 'block';
     } else {
-        separator.innerText = '';
+        // Удаление клонированного контента
+        clonedContent.innerHTML = '';
+        cloneDiv.style.display = 'none';
     }
-});
+}
