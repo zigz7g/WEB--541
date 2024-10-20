@@ -1,59 +1,56 @@
 <html>
-    <head></head>
-    <body>
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-        
-        <div id="app">
-            <select v-model="selectedOption" multiple>
-                <option>"1"</option>
-                <option>"2"</option>
-                <option>"3"</option>
-                <option>"4"</option>
-                <option>"5"</option>
-                <option>"6"</option>
-                <option>"7"</option>
-            </select>
-        </div>
-        <div>
-            <input type="text" v-model="inputs[0]">
-            <input type="text" v-model="inputs[1]">
-            <input type="text" v-model="inputs[2]">
-            <input type="text" v-model="inputs[3]">
-            <input type="text" v-model="inputs[4]">
-            <input type="text" v-model="inputs[5]">
-            <input type="text" v-model="inputs[6]">
-        </div>
+<head>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Элемент select с режимом множественного выбора -->
+        <select multiple size="7" @blur="resetSelections" @change="handleSelectionChange">
+            <option value="Option 1">Option 1</option>
+            <option value="Option 2">Option 2</option>
+            <option value="Option 3">Option 3</option>
+            <option value="Option 4">Option 4</option>
+            <option value="Option 5">Option 5</option>
+            <option value="Option 6">Option 6</option>
+            <option value="Option 7">Option 7</option>
+        </select>
 
-        <script>
-            const { createApp } = Vue;
-            createApp({
-                data() {
-                    return {
-                        option: ['1', '2', '3', '4', '5', '6', '7'],
-                        selectedOption: [],
-                        inputs: ['', '', '', '', '', '', ''] 
-                    };
-                },
-                watch: {
-                    selectedOption(newVal) {
-                        this.updateInputs(newVal);
+        <!-- Семь текстовых полей -->
+        <input type="text" v-bind:value="inputs[0]" readonly />
+        <input type="text" v-bind:value="inputs[1]" readonly />
+        <input type="text" v-bind:value="inputs[2]" readonly />
+        <input type="text" v-bind:value="inputs[3]" readonly />
+        <input type="text" v-bind:value="inputs[4]" readonly />
+        <input type="text" v-bind:value="inputs[5]" readonly />
+        <input type="text" v-bind:value="inputs[6]" readonly />
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    inputs: ['', '', '', '', '', '', ''],  // Массив для значений текстовых полей (7 элементов)
+                };
+            },
+            methods: {
+                handleSelectionChange(event) {
+                    // Получение выбранных значений
+                    const selectedOptions = Array.from(event.target.selectedOptions).map(option => option.value);
+
+                    // Очистка текстовых полей
+                    for (let i = 0; i < 7; i++) {
+                        this.inputs[i] = selectedOptions[i] || '';  // Заполняем поля или оставляем пустыми
                     }
                 },
-                method: {
-                    updateInputs(selected) {
-                        this.inputs.fill('');
-                        selected.forEach((value, index) => {
-                            if (index < this.inputs.length) {
-                                this.inputs[index] = value;
-                            }
-                        });
-                    },
-                    resetSelection() {
-                        this.selectedOption = [];
-                        this.updateInputs([]);
-                    }
+                // Сброс выбранных значений при потере фокуса
+                resetSelections(event) {
+                    event.target.selectedIndex = -1;  // Сбрасываем выбранные опции
+                    this.inputs = ['', '', '', '', '', '', ''];  // Очищаем текстовые поля
                 }
-            }).mount('#app');
-        </script>
-    </body>
+            }
+        }).mount('#app');
+    </script>
+</body>
 </html>

@@ -3,48 +3,45 @@
     <body>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-        <div id="app" @keydown="handlekeyPress" tabindex="0">
-            <input @focus="setFocus" type="text">
+        <div id="app" @click.right.prevent>
+            <input @click.left.ctrl="prnt"
+                   @keydown.ctrl.p.prevent="handlePrintDialog"
+                   @keydown.ctrl.3.prevent="closePrint($event)">
         </div>
 
         <script>
             const { createApp } = Vue;
+
             createApp({
                 data() {
                     return {
-                        inputText: '',
-                        isPromtActive: false,
+                        key: "",
                     };
                 },
                 methods: {
-                    handleKeyPress(event) {
-                        if (event.ctrlKey && event.key === 'p') {
-                            event.preventDefault();
-                            this.showPromt();
-                        }
+                    prnt() {
+                        alert("Настройка печати");
                     },
-                    showPromt() {
-                        if (!this.isPromtActive) {
-                            this.isPromtActive = true;
-                            this.promtUser();
-                        }
+                    closePrint(e) {
+                        console.log(e);
+                        this.key = e.key + " (" + e.keyCode + ")";
+                        alert("Печать по Ctrl + Click");
                     },
-                    promtUser() {
-                        const userInput = prompt('Вывести диалоговое окно печати?');
-                        if (userInput === 'да') {
-                            this.isPromtActive = false;
-                        } else if (userInput === 'нет') {
-                            this.isPromtActive = false;
-                        } else {
-                            this.promtuser();
-                        }
-                    },
-                    setFocus() {
-                        this.isPromtActive = false;
+                    handlePrintDialog(e) {
+                        const askPrint = () => {
+                            let response = prompt("Вывести диалоговое окно печати? (да/нет)");
+                            
+                            if (response === "да") {
+                                window.print();
+                            } else if (response === "нет") {
+                                alert("Печать отменена");
+                            } else {
+                                askPrint(); // Повторный вызов диалога при неверном ответе
+                            }
+                        };
+
+                        askPrint();
                     }
-                },
-                mounted() {
-                    this.$el.focus();
                 }
             }).mount('#app');
         </script>
