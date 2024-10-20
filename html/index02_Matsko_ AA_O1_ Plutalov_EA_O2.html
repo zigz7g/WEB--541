@@ -6,7 +6,7 @@
         <div id="app" @click.right.prevent>
             <input @click.left.ctrl="prnt"
                    @keydown.ctrl.p.prevent="handlePrintDialog"
-                   @keydown.ctrl.3.prevent="closePrint($event)">
+                   @keydown.ctrl.з.prevent="handlePrintDialog">
         </div>
 
         <script>
@@ -21,11 +21,6 @@
                 methods: {
                     prnt() {
                         alert("Настройка печати");
-                    },
-                    closePrint(e) {
-                        console.log(e);
-                        this.key = e.key + " (" + e.keyCode + ")";
-                        alert("Печать по Ctrl + Click");
                     },
                     handlePrintDialog(e) {
                         const askPrint = () => {
