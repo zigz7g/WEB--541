@@ -1,81 +1,73 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator Input</title>
+  <script src="https://unpkg.com/vue@3"></script>
 </head>
 <body>
-    <div id="app">
-        <!-- Поле для ввода выражений -->
-        <input type="text" v-model="inputValue" />
+  <div id="app">
+    <input v-model="inputValue" placeholder="Enter expression like a+b" />
+  </div>
 
-        <!-- Сообщение об ошибке (если неверный ввод) -->
-        <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
-    </div>
+  <script>
+    const { createApp, watch } = Vue;
 
-    <script>
-        const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          inputValue: '', // Хранит значение из input
+        };
+      },
+      watch: {
+        inputValue(newValue) {
+          // Убираем пробелы в начале и конце строки
+          const expression = newValue.trim();
 
-        createApp({
-            data() {
-                return {
-                    inputValue: '',      // Значение, введённое пользователем
-                    errorMessage: ''     // Сообщение об ошибке
-                };
-            },
-            watch: {
-                // Наблюдаем за изменением inputValue
-                inputValue(newVal) {
-                    this.calculateResult(newVal);
+          // Проверка шаблона и выполнение вычисления
+          const operators = ['+', '-', '*', '/'];
+          for (const operator of operators) {
+            const parts = expression.split(operator);
+
+            // Если разделение прошло корректно и есть две части
+            if (parts.length === 2) {
+              const left = parts[0].replace(',', '.').trim();
+              const right = parts[1].replace(',', '.').trim();
+
+              // Пробуем привести строки к числовому значению
+              const num1 = parseFloat(left);
+              const num2 = parseFloat(right);
+
+              // Проверяем, что оба значения являются числовыми
+              if (!isNaN(num1) && !isNaN(num2)) {
+                let result;
+
+                // Выполняем соответствующую операцию
+                switch (operator) {
+                  case '+':
+                    result = num1 + num2;
+                    break;
+                  case '-':
+                    result = num1 - num2;
+                    break;
+                  case '*':
+                    result = num1 * num2;
+                    break;
+                  case '/':
+                    result = num2 !== 0 ? num1 / num2 : 'Ошибка';
+                    break;
                 }
-            },
-            methods: {
-                calculateResult(value) {
-                    // Убираем лишние пробелы в начале и конце
-                    const trimmedInput = value.trim();
 
-                    // Шаблон для поиска арифметических операций: a+b, a–b, a*b, a/b
-                    const regex = /^(-?\d+(?:,\d+)?)\s*([\+\-\*\/])\s*(-?\d+(?:,\d+)?)$/;
-
-                    const match = trimmedInput.match(regex);
-                    
-                    if (match) {
-                        const a = match[1].replace(',', '.');  // Первое число
-                        const operator = match[2];              // Оператор (+, -, *, /)
-                        const b = match[3].replace(',', '.');  // Второе число
-
-                        let result;
-
-                        // Выполняем арифметическую операцию
-                        switch (operator) {
-                            case '+':
-                                result = parseFloat(a) + parseFloat(b);
-                                break;
-                            case '-':
-                                result = parseFloat(a) - parseFloat(b);
-                                break;
-                            case '*':
-                                result = parseFloat(a) * parseFloat(b);
-                                break;
-                            case '/':
-                                if (parseFloat(b) === 0) {
-                                    this.errorMessage = 'Ошибка: деление на ноль';
-                                    return;
-                                }
-                                result = parseFloat(a) / parseFloat(b);
-                                break;
-                        }
-
-                        // Преобразуем результат обратно в строку и заменяем точку на запятую
-                        this.inputValue = result.toString().replace('.', ',');
-                        this.errorMessage = ''; // Сброс ошибки
-                    } else {
-                        this.errorMessage = 'Неверный формат выражения';
-                    }
-                }
+                // Записываем результат в input, заменяя точку на запятую
+                this.inputValue = String(result).replace('.', ',');
+                return; // Прерываем цикл после вычисления
+              }
             }
-        }).mount('#app');
-    </script>
+          }
+        }
+      }
+    }).mount('#app');
+  </script>
 </body>
 </html>
