@@ -1,0 +1,167 @@
+<html>
+<head>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div v-if="!testStarted && !testFinished">
+            <!-- Стартовый экран -->
+            <h1>Добро пожаловать в опрос!</h1>
+            <button @click="startTest">Начать тестирование</button>
+        </div>
+
+        <div v-if="testStarted && !testFinished">
+            <!-- Вопросы -->
+            <div>
+                <h2>{{ questions[currentQuestion].question }}</h2>
+
+                <!-- Опции с radiobuttons -->
+                <label><input type="radio" v-model="selectedAnswers[currentQuestion]" value="0"> {{ questions[currentQuestion].answers[0] }}</label><br>
+                <label><input type="radio" v-model="selectedAnswers[currentQuestion]" value="1"> {{ questions[currentQuestion].answers[1] }}</label><br>
+                <label><input type="radio" v-model="selectedAnswers[currentQuestion]" value="2"> {{ questions[currentQuestion].answers[2] }}</label><br>
+                <label><input type="radio" v-model="selectedAnswers[currentQuestion]" value="3"> {{ questions[currentQuestion].answers[3] }}</label><br>
+
+                <!-- Подсказки -->
+                <div>
+                    <label><input type="checkbox" v-model="hintsUsed[currentQuestion].hint1"> Пояснение с наводкой (минус 0.15 балла)</label><br>
+                    <label><input type="checkbox" v-model="hintsUsed[currentQuestion].hint2"> Устранить два ложных варианта (минус 0.5 балла)</label><br>
+                </div>
+
+                <!-- Кнопки перехода между вопросами -->
+                <div>
+                    <button v-if="currentQuestion > 0" @click="previousQuestion">Назад</button>
+                    <button v-if="currentQuestion < 9" @click="nextQuestion">Далее</button>
+                    <button v-if="currentQuestion === 9" @click="finishTest">Выполнено</button>
+                </div>
+            </div>
+
+            <!-- Вкладки для переключения вопросов -->
+            <div>
+                <button v-for="i in 10" :key="i" @click="goToQuestion(i - 1)">Вопрос {{ i }}</button>
+            </div>
+        </div>
+
+        <!-- Экран с результатом -->
+        <div v-if="testFinished">
+            <h1>Тест завершён!</h1>
+            <p>Ваш результат: {{ finalScore }}%</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    testStarted: false,    // Флаг, начато ли тестирование
+                    testFinished: false,   // Флаг, завершено ли тестирование
+                    currentQuestion: 0,    // Текущий вопрос
+                    selectedAnswers: Array(10).fill(null),  // Выбранные ответы на вопросы
+                    hintsUsed: Array(10).fill({ hint1: false, hint2: false }),  // Использованные подсказки
+                    questions: [
+                        {
+                            question: "Вопрос 1: Что такое Vue.js?",
+                            answers: ["Библиотека", "Фреймворк", "Язык", "Редактор"],
+                            correctAnswer: 1
+                        },
+                        {
+                            question: "Вопрос 2: Сколько времени в часе?",
+                            answers: ["50 минут", "60 минут", "40 минут", "30 минут"],
+                            correctAnswer: 1
+                        },
+                        {
+                            question: "Вопрос 3: Какой язык используется для веб-разработки?",
+                            answers: ["HTML", "Python", "Java", "C++"],
+                            correctAnswer: 0
+                        },
+                        {
+                            question: "Вопрос 4: Какая планета самая большая в Солнечной системе?",
+                            answers: ["Земля", "Марс", "Юпитер", "Венера"],
+                            correctAnswer: 2
+                        },
+                        {
+                            question: "Вопрос 5: Кто написал 'Войну и мир'?",
+                            answers: ["Достоевский", "Толстой", "Пушкин", "Чехов"],
+                            correctAnswer: 1
+                        },
+                        {
+                            question: "Вопрос 6: Сколько континентов на Земле?",
+                            answers: ["5", "6", "7", "8"],
+                            correctAnswer: 2
+                        },
+                        {
+                            question: "Вопрос 7: Какая химическая формула воды?",
+                            answers: ["H2O", "CO2", "O2", "NaCl"],
+                            correctAnswer: 0
+                        },
+                        {
+                            question: "Вопрос 8: В каком году началась Вторая мировая война?",
+                            answers: ["1914", "1939", "1941", "1945"],
+                            correctAnswer: 1
+                        },
+                        {
+                            question: "Вопрос 9: Какой цвет получается при смешивании синего и жёлтого?",
+                            answers: ["Зелёный", "Оранжевый", "Фиолетовый", "Коричневый"],
+                            correctAnswer: 0
+                        },
+                        {
+                            question: "Вопрос 10: Столица Франции?",
+                            answers: ["Мадрид", "Лондон", "Париж", "Берлин"],
+                            correctAnswer: 2
+                        }
+                    ],
+                    finalScore: 0  // Итоговый результат
+                };
+            },
+            methods: {
+                startTest() {
+                    this.testStarted = true;
+                },
+                nextQuestion() {
+                    if (this.currentQuestion < 9) {
+                        this.currentQuestion++;
+                    }
+                },
+                previousQuestion() {
+                    if (this.currentQuestion > 0) {
+                        this.currentQuestion--;
+                    }
+                },
+                goToQuestion(index) {
+                    this.currentQuestion = index;
+                },
+                finishTest() {
+                    let totalScore = 0;
+
+                    for (let i = 0; i < 10; i++) {
+                        let baseScore = 1;  // Один балл за правильный ответ
+
+                        // Если использована первая подсказка, вычитаем 0.15 балла
+                        if (this.hintsUsed[i].hint1) {
+                            baseScore -= 0.15;
+                        }
+
+                        // Если использована вторая подсказка, вычитаем 0.5 балла
+                        if (this.hintsUsed[i].hint2) {
+                            baseScore -= 0.5;
+                        }
+
+                        // Проверка, был ли правильный ответ
+                        if (parseInt(this.selectedAnswers[i]) === this.questions[i].correctAnswer) {
+                            totalScore += baseScore;
+                        }
+                    }
+
+                    // Вычисляем процент успеха
+                    this.finalScore = Math.round((totalScore / 10) * 100);
+
+                    // Завершаем тестирование
+                    this.testFinished = true;
+                    this.testStarted = false;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

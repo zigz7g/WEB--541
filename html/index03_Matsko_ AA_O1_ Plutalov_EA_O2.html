@@ -1,0 +1,56 @@
+<html>
+<head>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Элемент select с режимом множественного выбора -->
+        <select multiple size="7" @blur="resetSelections" @change="handleSelectionChange">
+            <option value="Option 1">Option 1</option>
+            <option value="Option 2">Option 2</option>
+            <option value="Option 3">Option 3</option>
+            <option value="Option 4">Option 4</option>
+            <option value="Option 5">Option 5</option>
+            <option value="Option 6">Option 6</option>
+            <option value="Option 7">Option 7</option>
+        </select>
+
+        <!-- Семь текстовых полей -->
+        <input type="text" v-bind:value="inputs[0]" readonly />
+        <input type="text" v-bind:value="inputs[1]" readonly />
+        <input type="text" v-bind:value="inputs[2]" readonly />
+        <input type="text" v-bind:value="inputs[3]" readonly />
+        <input type="text" v-bind:value="inputs[4]" readonly />
+        <input type="text" v-bind:value="inputs[5]" readonly />
+        <input type="text" v-bind:value="inputs[6]" readonly />
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    inputs: ['', '', '', '', '', '', ''],  // Массив для значений текстовых полей (7 элементов)
+                };
+            },
+            methods: {
+                handleSelectionChange(event) {
+                    // Получение выбранных значений
+                    const selectedOptions = Array.from(event.target.selectedOptions).map(option => option.value);
+
+                    // Очистка текстовых полей
+                    for (let i = 0; i < 7; i++) {
+                        this.inputs[i] = selectedOptions[i] || '';  // Заполняем поля или оставляем пустыми
+                    }
+                },
+                // Сброс выбранных значений при потере фокуса
+                resetSelections(event) {
+                    event.target.selectedIndex = -1;  // Сбрасываем выбранные опции
+                    this.inputs = ['', '', '', '', '', '', ''];  // Очищаем текстовые поля
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
