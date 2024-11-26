@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Фрагментированное изображение в таблице</title>
+  <style>
+    /* Стили таблицы и ячеек */
+    .image-table {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      border-collapse: collapse;
+      border: 1px solid #ddd;
+    }
+
+    .image-cell {
+      width: 100px;
+      height: 100px;
+      border: 1px solid #ddd;
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Ввод количества строк и столбцов -->
+    <div>
+      <label>Количество строк:</label>
+      <input type="number" v-model.number="rows" min="2" @input="rows = Math.max(rows, 2)" />
+
+      <label>Количество столбцов:</label>
+      <input type="number" v-model.number="columns" min="3" @input="columns = Math.max(columns, 3)" />
+
+      <!-- Таблица с фрагментами изображения -->
+      <table class="image-table">
+        <tr v-for="row in rowsArray" :key="row">
+          <td
+            v-for="col in columnsArray"
+            :key="col"
+            :style="getCellStyle(rowIndex(row, col))"
+            class="image-cell"
+          ></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Подключение Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const rows = ref(2);
+        const columns = ref(3);
+
+        // Список фрагментов изображения (пути к файлам частей)
+        const imageParts = [
+          '../Pict/image_part_001.jpg',
+          '../Pict/image_part_002.jpg',
+          '../Pict/image_part_003.jpg',
+          '../Pict/image_part_004.jpg',
+          '../Pict/image_part_005.jpg',
+          '../Pict/image_part_006.jpg',
+        ];
+
+        const rowsArray = computed(() => Array.from({ length: Math.max(rows.value, 2) }, (_, i) => i));
+        const columnsArray = computed(() => Array.from({ length: Math.max(columns.value, 3) }, (_, i) => i));
+
+        const paddedImageParts = computed(() => {
+          const totalCells = Math.max(rows.value, 2) * Math.max(columns.value, 3);
+
+          if (rows.value <= 2 && columns.value <= 3) return imageParts;
+
+          const emptyCells = Array(totalCells).fill(null);
+          const startIndex = Math.floor((totalCells - imageParts.length) / 2);
+
+          for (let i = 0; i < imageParts.length; i++) {
+            emptyCells[startIndex + i] = imageParts[i];
+          }
+          return emptyCells;
+        });
+
+        const rowIndex = (row, col) => row * Math.max(columns.value, 3) + col;
+
+        const getCellStyle = (index) => {
+          const part = paddedImageParts.value[index];
+          return part
+            ? {
+                backgroundImage: `url(${part})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : {};
+        };
+
+        return {
+          rows,
+          columns,
+          rowsArray,
+          columnsArray,
+          rowIndex,
+          getCellStyle,
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>

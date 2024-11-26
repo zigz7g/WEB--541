@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue 3 Lifecycle Hooks</title>
+  <script src="https://unpkg.com/vue@3"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .log {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+    button {
+      margin-right: 10px;
+    }
+    .hooks-status {
+      margin-top: 20px;
+    }
+    .hook-state {
+      margin-bottom: 5px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: space-between;
+    }
+    .hook-state.active {
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Vue 3 Lifecycle Hooks</h1>
+    <p>Count: {{ count }}</p>
+    <button @click="increment">Increment</button>
+    <button @click="destroy">Destroy Component</button>
+
+    <div class="hooks-status">
+      <h3>Lifecycle Hooks Status:</h3>
+      <div v-for="(status, hook) in hooks" :key="hook" :class="['hook-state', { active: status }]">
+        <span>{{ hook }}</span>
+        <span>{{ status ? 'Triggered' : 'Not Triggered' }}</span>
+      </div>
+    </div>
+
+    <div class="log">
+      <h3>Lifecycle Logs:</h3>
+      <ul>
+        <li v-for="(log, index) in logs" :key="index">{{ log }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const app = Vue.createApp({
+      data() {
+        return {
+          count: 0,
+          logs: [],
+          hooks: {
+            beforeCreate: false,
+            created: false,
+            beforeMount: false,
+            mounted: false,
+            beforeUpdate: false,
+            updated: false,
+            beforeUnmount: false,
+            unmounted: false
+          }
+        };
+      },
+      methods: {
+        increment() {
+          this.count++;
+        },
+        destroy() {
+          app.unmount(); // Размонтирование через экземпляр приложения
+        },
+        logLifecycle(hook) {
+          if (!this.hooks[hook]) {
+            this.hooks[hook] = true;
+            this.logs.push(`${new Date().toLocaleTimeString()}: ${hook}`);
+          }
+        }
+      },
+      beforeCreate() {
+        console.log('beforeCreate');
+        // Прямое логирование, так как this.logs недоступно
+        if (!this._logs) this._logs = [];
+        this._logs.push(`${new Date().toLocaleTimeString()}: beforeCreate`);
+      },
+      created() {
+        console.log('created');
+        this.logLifecycle('created');
+      },
+      beforeMount() {
+        console.log('beforeMount');
+        this.logLifecycle('beforeMount');
+      },
+      mounted() {
+        console.log('mounted');
+        this.logLifecycle('mounted');
+      },
+      beforeUpdate() {
+        console.log('beforeUpdate');
+        this.logLifecycle('beforeUpdate');
+      },
+      updated() {
+        console.log('updated');
+        this.logLifecycle('updated');
+      },
+      beforeUnmount() {
+        console.log('beforeUnmount');
+        this.logLifecycle('beforeUnmount');
+      },
+      unmounted() {
+        console.log('unmounted');
+        this.logLifecycle('unmounted');
+      }
+    });
+
+    const vm = app.mount('#app');
+  </script>
+</body>
+</html>

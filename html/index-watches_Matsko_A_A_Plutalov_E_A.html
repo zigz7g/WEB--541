@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator Input</title>
+  <script src="https://unpkg.com/vue@3"></script>
+</head>
+<body>
+  <div id="app">
+    <input v-model="inputValue" placeholder="Enter expression like a+b" />
+  </div>
+
+  <script>
+    const { createApp, watch } = Vue;
+
+    createApp({
+      data() {
+        return {
+          inputValue: '', // Хранит значение из input
+        };
+      },
+      watch: {
+        inputValue(newValue) {
+          // Убираем пробелы в начале и конце строки
+          const expression = newValue.trim();
+
+          // Проверка шаблона и выполнение вычисления
+          const operators = ['+', '-', '*', '/'];
+          for (const operator of operators) {
+            const parts = expression.split(operator);
+
+            // Если разделение прошло корректно и есть две части
+            if (parts.length === 2) {
+              const left = parts[0].replace(',', '.').trim();
+              const right = parts[1].replace(',', '.').trim();
+
+              // Пробуем привести строки к числовому значению
+              const num1 = parseFloat(left);
+              const num2 = parseFloat(right);
+
+              // Проверяем, что оба значения являются числовыми
+              if (!isNaN(num1) && !isNaN(num2)) {
+                let result;
+
+                // Выполняем соответствующую операцию
+                switch (operator) {
+                  case '+':
+                    result = num1 + num2;
+                    break;
+                  case '-':
+                    result = num1 - num2;
+                    break;
+                  case '*':
+                    result = num1 * num2;
+                    break;
+                  case '/':
+                    result = num2 !== 0 ? num1 / num2 : 'Ошибка';
+                    break;
+                }
+
+                // Записываем результат в input, заменяя точку на запятую
+                this.inputValue = String(result).replace('.', ',');
+                return; // Прерываем цикл после вычисления
+              }
+            }
+          }
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
