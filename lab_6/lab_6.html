@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Инверсия изображения в CMYK с детальной гистограммой</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    svg {
+      border: solid 1px #999;
+    }
+    p {
+      margin: 5px 0 3px;
+    }
+    .card {
+      margin: 15px 5px;
+    }
+    .histogram {
+      margin-top: 20px;
+      border: 1px solid #999;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const App = {
+      template: `
+        <div id="hist">
+          <div class="card">
+            <p>Выберите изображение из файла</p>
+            <input id="file" type="file" @change="handleFileChange" />
+            <br />
+            <img
+              v-if="imageSrc"
+              :src="imageSrc"
+              alt="Загруженное изображение"
+              @load="processImage"
+            />
+          </div>
+
+          <div class="card" v-if="processedImage">
+            <p>Результат инверсии (CMYK)</p>
+            <svg
+              :width="imageWidth"
+              :height="imageHeight"
+              style="border: solid 1px #999;"
+            >
+              <image
+                :href="processedImage"
+                :width="imageWidth"
+                :height="imageHeight"
+              />
+            </svg>
+          </div>
+
+          <div class="card" v-if="histogramData.C.length > 0">
+            <p>Режим отображения гистограммы:</p>
+            <div>
+              <input
+                id="brightness"
+                type="radio"
+                value="brightness"
+                v-model="histogramMode"
+                @change="updateHistogram"
+              />
+              <label for="brightness">Яркость</label>
+              <input
+                id="cmyk"
+                type="radio"
+                value="cmyk"
+                v-model="histogramMode"
+                @change="updateHistogram"
+              />
+              <label for="cmyk">Цвет (CMYK)</label>
+            </div>
+            <p>Гистограмма:</p>
+            <svg class="histogram" width="512" height="600" v-if="histogramMode === 'brightness'">
+              <rect
+                v-for="(value, index) in histogramData.Brightness"
+                :key="'b-' + index"
+                :x="index * 2"
+                :y="600 - value * histogramScale"
+                width="2"
+                :height="value * histogramScale"
+                fill="gray"
+              />
+            </svg>
+            <svg class="histogram" width="512" height="600" v-if="histogramMode === 'cmyk'">
+              <rect
+                v-for="(value, index) in histogramData.C"
+                :key="'c-' + index"
+                :x="index * 2"
+                :y="600 - value * histogramScale"
+                width="2"
+                :height="value * histogramScale"
+                fill="cyan"
+              />
+              <rect
+                v-for="(value, index) in histogramData.M"
+                :key="'m-' + index"
+                :x="index * 2"
+                :y="600 - value * histogramScale"
+                width="2"
+                :height="value * histogramScale"
+                fill="magenta"
+                opacity="0.7"
+              />
+              <rect
+                v-for="(value, index) in histogramData.Y"
+                :key="'y-' + index"
+                :x="index * 2"
+                :y="600 - value * histogramScale"
+                width="2"
+                :height="value * histogramScale"
+                fill="yellow"
+                opacity="0.7"
+              />
+              <rect
+                v-for="(value, index) in histogramData.K"
+                :key="'k-' + index"
+                :x="index * 2"
+                :y="600 - value * histogramScale"
+                width="2"
+                :height="value * histogramScale"
+                fill="black"
+                opacity="0.7"
+              />
+            </svg>
+          </div>
+        </div>
+      `,
+      data() {
+        return {
+          imageSrc: null, // Исходное изображение
+          processedImage: null, // Обработанное изображение
+          imageWidth: 0, // Ширина изображения
+          imageHeight: 0, // Высота изображения
+          histogramData: {
+            Brightness: [], // Гистограмма яркости
+            C: [], // Гистограмма компонента C (Циан)
+            M: [], // Гистограмма компонента M (Маджента)
+            Y: [], // Гистограмма компонента Y (Желтый)
+            K: [], // Гистограмма компонента K (Черный)
+          },
+          histogramScale: 1, // Масштаб для гистограммы
+          histogramMode: "brightness", // Текущий режим гистограммы
+        };
+      },
+      methods: {
+        handleFileChange(event) {
+          const file = event.target.files[0];
+          if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              this.imageSrc = e.target.result; // Сохраняем путь к изображению
+            };
+            reader.readAsDataURL(file);
+          } else {
+            alert("Пожалуйста, выберите файл изображения.");
+          }
+        },
+        processImage(event) {
+          const img = event.target;
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          // Устанавливаем размеры
+          canvas.width = img.width;
+          canvas.height = img.height;
+          this.imageWidth = img.width;
+          this.imageHeight = img.height;
+
+          // Отрисовываем изображение на canvas
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+
+          // Инициализация гистограммы
+          const histogramBrightness = new Array(256).fill(0);
+          const histogramC = new Array(256).fill(0);
+          const histogramM = new Array(256).fill(0);
+          const histogramY = new Array(256).fill(0);
+          const histogramK = new Array(256).fill(0);
+
+          // Преобразуем каждый пиксель
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i] / 255;
+            const g = data[i + 1] / 255;
+            const b = data[i + 2] / 255;
+
+            // RGB → CMYK
+            const k = 1 - Math.max(r, g, b);
+            const c = (1 - r - k) / (1 - k || 1);
+            const m = (1 - g - k) / (1 - k || 1);
+            const y = (1 - b - k) / (1 - k || 1);
+
+            // Инвертируем CMYK
+            const cInv = 1 - c;
+            const mInv = 1 - m;
+            const yInv = 1 - y;
+            const kInv = 1 - k;
+
+            // CMYK → RGB
+            data[i] = 255 * (1 - cInv) * (1 - kInv); // R
+            data[i + 1] = 255 * (1 - mInv) * (1 - kInv); // G
+            data[i + 2] = 255 * (1 - yInv) * (1 - kInv); // B
+
+            // Обновляем гистограммы для компонентов
+            histogramC[Math.round(cInv * 255)]++;
+            histogramM[Math.round(mInv * 255)]++;
+            histogramY[Math.round(yInv * 255)]++;
+            histogramK[Math.round(kInv * 255)]++;
+
+            // Рассчитываем яркость после инверсии
+            const brightness = Math.round((cInv + mInv + yInv + kInv) / 4 * 255);
+            histogramBrightness[brightness]++;
+          }
+
+          // Обновляем изображение на canvas
+          ctx.putImageData(imageData, 0, 0);
+
+          // Конвертируем canvas в Base64 и сохраняем результат
+          this.processedImage = canvas.toDataURL();
+
+          // Рассчитываем масштаб гистограммы
+          const max = Math.max(
+            ...histogramBrightness,
+            ...histogramC,
+            ...histogramM,
+            ...histogramY,
+            ...histogramK
+          );
+          this.histogramData = {
+            Brightness: histogramBrightness,
+            C: histogramC,
+            M: histogramM,
+            Y: histogramY,
+            K: histogramK,
+          };
+          this.histogramScale = max > 0 ? 600 / max : 1; // Высота SVG = 600px
+        },
+        updateHistogram() {
+          // Метод-заглушка для обработки смены режима гистограммы.
+        },
+      },
+    };
+
+    Vue.createApp(App).mount('#app');
+  </script>
+</body>
+</html>
