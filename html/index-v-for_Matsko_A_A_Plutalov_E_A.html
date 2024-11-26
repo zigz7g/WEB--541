@@ -28,10 +28,10 @@
     <!-- Ввод количества строк и столбцов -->
     <div>
       <label>Количество строк:</label>
-      <input type="number" v-model.number="rows" min="1" />
+      <input type="number" v-model.number="rows" min="2" @input="rows = Math.max(rows, 2)" />
 
       <label>Количество столбцов:</label>
-      <input type="number" v-model.number="columns" min="1" />
+      <input type="number" v-model.number="columns" min="3" @input="columns = Math.max(columns, 3)" />
 
       <!-- Таблица с фрагментами изображения -->
       <table class="image-table">
@@ -67,27 +67,24 @@
           '../Pict/image_part_006.jpg',
         ];
 
-        const rowsArray = computed(() => Array.from({ length: rows.value }, (_, i) => i));
-        const columnsArray = computed(() => Array.from({ length: columns.value }, (_, i) => i));
+        const rowsArray = computed(() => Array.from({ length: Math.max(rows.value, 2) }, (_, i) => i));
+        const columnsArray = computed(() => Array.from({ length: Math.max(columns.value, 3) }, (_, i) => i));
 
         const paddedImageParts = computed(() => {
-          const totalCells = rows.value * columns.value;
+          const totalCells = Math.max(rows.value, 2) * Math.max(columns.value, 3);
 
-          // Если размер таблицы меньше или равен 2x3, возвращаем оригинальные части
           if (rows.value <= 2 && columns.value <= 3) return imageParts;
 
-          // Если больше, создаем пустые ячейки для заполнения и центрирования
           const emptyCells = Array(totalCells).fill(null);
           const startIndex = Math.floor((totalCells - imageParts.length) / 2);
 
-          // Вставляем фрагменты изображения начиная с центрального индекса
           for (let i = 0; i < imageParts.length; i++) {
             emptyCells[startIndex + i] = imageParts[i];
           }
           return emptyCells;
         });
 
-        const rowIndex = (row, col) => row * columns.value + col;
+        const rowIndex = (row, col) => row * Math.max(columns.value, 3) + col;
 
         const getCellStyle = (index) => {
           const part = paddedImageParts.value[index];
